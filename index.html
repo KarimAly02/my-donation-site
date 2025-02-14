@@ -1,0 +1,218 @@
+<!DOCTYPE html>
+<html lang="ar">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>موقع جمع التبرعات لرمضان</title>
+  <style>
+    body {
+      font-family: Arial, sans-serif;
+      direction: rtl;
+      text-align: center;
+      padding: 20px;
+    }
+    .team {
+      margin-top: 20px;
+      border: 1px solid #ccc;
+      padding: 10px;
+      border-radius: 5px;
+    }
+    .team h2 {
+      color: #4CAF50;
+      margin: 0 0 10px;
+    }
+    .counter {
+      font-size: 24px;
+      color: #333;
+    }
+    .donor-input {
+      margin-top: 10px;
+    }
+    .donor-input input {
+      padding: 5px;
+      font-size: 16px;
+    }
+    .donor-input button {
+      padding: 5px 10px;
+      font-size: 16px;
+      margin-left: 5px;
+    }
+    .progress-bar {
+      width: 100%;
+      background-color: #e0e0e0;
+      height: 20px;
+      border-radius: 10px;
+      margin-top: 10px;
+    }
+    .progress-bar span {
+      display: block;
+      height: 100%;
+      background-color: #4CAF50;
+      border-radius: 10px;
+      width: 0%;
+    }
+    .donor-list {
+      margin-top: 10px;
+      text-align: left;
+      padding: 0 10px;
+    }
+    .donor-list p {
+      margin: 3px 0;
+    }
+  </style>
+</head>
+<body>
+  <h1>موقع جمع التبرعات لرمضان</h1>
+  
+  <!-- إظهار الهدف الكلي المتبقي -->
+  <div class="counter">
+    <h2>الهدف الإجمالي: 250000 جنيه</h2>
+    <p>المبلغ المتبقي: <span id="totalRemainingAmount">250000</span> جنيه</p>
+  </div>
+  
+  <!-- فرق التبرعات -->
+  <div id="teams">
+    <!-- فريق كريم علاء -->
+    <div class="team" id="team1">
+      <h2>كريم علاء - الهدف: <span id="team1Target">50000</span> جنيه</h2>
+      <p>المبلغ الحالي: <span id="team1Amount">0</span> جنيه</p>
+      <div class="progress-bar">
+        <span id="team1Progress"></span>
+      </div>
+      <div class="donor-input">
+        <input type="number" id="team1Donation" placeholder="أدخل المبلغ" />
+        <button onclick="addDonation(1)">تبرع الآن</button>
+      </div>
+      <div class="donor-list" id="team1Donors"></div>
+    </div>
+    
+    <!-- فريق أنور أيمن -->
+    <div class="team" id="team2">
+      <h2>أنور أيمن - الهدف: <span id="team2Target">50000</span> جنيه</h2>
+      <p>المبلغ الحالي: <span id="team2Amount">0</span> جنيه</p>
+      <div class="progress-bar">
+        <span id="team2Progress"></span>
+      </div>
+      <div class="donor-input">
+        <input type="number" id="team2Donation" placeholder="أدخل المبلغ" />
+        <button onclick="addDonation(2)">تبرع الآن</button>
+      </div>
+      <div class="donor-list" id="team2Donors"></div>
+    </div>
+    
+    <!-- فريق رنا الخميس -->
+    <div class="team" id="team3">
+      <h2>رنا الخميس - الهدف: <span id="team3Target">50000</span> جنيه</h2>
+      <p>المبلغ الحالي: <span id="team3Amount">0</span> جنيه</p>
+      <div class="progress-bar">
+        <span id="team3Progress"></span>
+      </div>
+      <div class="donor-input">
+        <input type="number" id="team3Donation" placeholder="أدخل المبلغ" />
+        <button onclick="addDonation(3)">تبرع الآن</button>
+      </div>
+      <div class="donor-list" id="team3Donors"></div>
+    </div>
+    
+    <!-- فريق نورهان عبدالعزيز -->
+    <div class="team" id="team4">
+      <h2>نورهان عبدالعزيز - الهدف: <span id="team4Target">50000</span> جنيه</h2>
+      <p>المبلغ الحالي: <span id="team4Amount">0</span> جنيه</p>
+      <div class="progress-bar">
+        <span id="team4Progress"></span>
+      </div>
+      <div class="donor-input">
+        <input type="number" id="team4Donation" placeholder="أدخل المبلغ" />
+        <button onclick="addDonation(4)">تبرع الآن</button>
+      </div>
+      <div class="donor-list" id="team4Donors"></div>
+    </div>
+    
+    <!-- فريق محمد محمود -->
+    <div class="team" id="team5">
+      <h2>محمد محمود - الهدف: <span id="team5Target">50000</span> جنيه</h2>
+      <p>المبلغ الحالي: <span id="team5Amount">0</span> جنيه</p>
+      <div class="progress-bar">
+        <span id="team5Progress"></span>
+      </div>
+      <div class="donor-input">
+        <input type="number" id="team5Donation" placeholder="أدخل المبلغ" />
+        <button onclick="addDonation(5)">تبرع الآن</button>
+      </div>
+      <div class="donor-list" id="team5Donors"></div>
+    </div>
+  </div>
+  
+  <script>
+    let totalAmount = 0; // إجمالي التبرعات من جميع الفرق
+    const totalTarget = 250000; // الهدف الكلي لجميع الفرق
+    let donorsData = {}; // تخزين بيانات المتبرعين لكل فريق
+
+    function addDonation(teamNumber) {
+      let donationInput = document.getElementById('team' + teamNumber + 'Donation');
+      let donation = donationInput.value;
+      let teamAmount = document.getElementById('team' + teamNumber + 'Amount');
+      let teamTarget = document.getElementById('team' + teamNumber + 'Target');
+      let totalRemaining = document.getElementById('totalRemainingAmount');
+      
+      if (donation && !isNaN(donation)) {
+        donation = parseFloat(donation);
+        
+        // طلب إدخال اسم المتبرع
+        let donorName = prompt("أدخل اسمك:");
+        if (!donorName || donorName.trim() === "") {
+          alert("الرجاء إدخال اسم صحيح");
+          return;
+        }
+        donorName = donorName.trim();
+        
+        // إنشاء كائن للفريق في donorsData إذا لم يكن موجوداً
+        if (!donorsData[teamNumber]) {
+          donorsData[teamNumber] = {};
+        }
+        
+        // تحديث بيانات المتبرع
+        if (donorsData[teamNumber][donorName]) {
+          donorsData[teamNumber][donorName] += donation;
+          // تحديث العرض إذا كان المتبرع موجوداً بالفعل
+          let donorElem = document.getElementById("donor-" + teamNumber + "-" + donorName);
+          if (donorElem) {
+            donorElem.textContent = donorName + " تبرع بـ " + donorsData[teamNumber][donorName] + " جنيه";
+          }
+        } else {
+          donorsData[teamNumber][donorName] = donation;
+          let donorElem = document.createElement("p");
+          donorElem.id = "donor-" + teamNumber + "-" + donorName;
+          donorElem.textContent = donorName + " تبرع بـ " + donation + " جنيه";
+          document.getElementById("team" + teamNumber + "Donors").appendChild(donorElem);
+        }
+        
+        // تحديث المبلغ الحالي للفريق
+        let currentAmount = parseFloat(teamAmount.innerText);
+        let newAmount = currentAmount + donation;
+        teamAmount.innerText = newAmount;
+        
+        // تحديث هدف الفريق (طرح قيمة التبرع من الهدف الابتدائي البالغ 50000)
+        let currentTarget = parseFloat(teamTarget.innerText);
+        let newTarget = currentTarget - donation;
+        teamTarget.innerText = newTarget > 0 ? newTarget : 0;
+        
+        // تحديث شريط التقدم للفريق
+        let progress = document.getElementById('team' + teamNumber + 'Progress');
+        let progressWidth = (newAmount / 50000) * 100;
+        progress.style.width = progressWidth + "%";
+        
+        // تحديث المبلغ المتبقي من الهدف الكلي
+        totalAmount += donation;
+        let remainingAmount = totalTarget - totalAmount;
+        totalRemaining.innerText = remainingAmount > 0 ? remainingAmount : 0;
+      } else {
+        alert("من فضلك أدخل مبلغ صحيح");
+      }
+      
+      // مسح حقل التبرع بعد الإضافة
+      donationInput.value = '';
+    }
+  </script>
+</body>
+</html>
