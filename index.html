@@ -62,6 +62,31 @@
   </style>
 </head>
 <body>
+
+  <!-- Firebase App (the core Firebase SDK) -->
+<script src="https://www.gstatic.com/firebasejs/9.0.0/firebase-app.js"></script>
+<!-- Firebase Firestore -->
+<script src="https://www.gstatic.com/firebasejs/9.0.0/firebase-firestore.js"></script>
+
+<script>
+// تهيئة Firebase باستخدام بيانات التكوين التي حصلت عليها
+const firebaseConfig = {
+  apiKey: "AIzaSyDC8R8B2Pthrki50KkEA05MYX_AGTVwPu0",
+  authDomain: "my-donation-site.firebaseapp.com",
+  projectId: "my-donation-site",
+  storageBucket: "my-donation-site.firebasestorage.app",
+  messagingSenderId: "496981423910",
+  appId: "1:496981423910:web:3687c0e98cc472a49a73e7"
+};
+
+// تهيئة Firebase
+const app = firebase.initializeApp(firebaseConfig);
+
+// الحصول على Firestore
+const db = firebase.firestore();
+</script>
+
+  
   <h1>موقع جمع التبرعات لرمضان</h1>
   
   <!-- إظهار الهدف الكلي المتبقي -->
