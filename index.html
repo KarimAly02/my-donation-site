@@ -176,51 +176,78 @@ const db = firebase.firestore();
 
     // دالة لحفظ البيانات في localStorage
     function saveData() {
-      const donationData = {
-        totalAmount: totalAmount,
-        teams: {}
-      };
-      for (let i = 1; i <= 5; i++) {
-        donationData.teams[i] = {
-          amount: parseFloat(document.getElementById('team' + i + 'Amount').innerText),
-          target: parseFloat(document.getElementById('team' + i + 'Target').innerText),
-          donors: donorsData[i] || {}
-        };
-      }
-      localStorage.setItem('donationData', JSON.stringify(donationData));
-    }
+  const donationData = {
+    totalAmount: totalAmount,
+    teams: {}
+  };
+
+  for (let i = 1; i <= 5; i++) {
+    donationData.teams[i] = {
+      amount: parseFloat(document.getElementById('team' + i + 'Amount').innerText),
+      target: parseFloat(document.getElementById('team' + i + 'Target').innerText),
+      donors: donorsData[i] || {}
+    };
+  }
+
+  // حفظ البيانات في localStorage
+  localStorage.setItem('donationData', JSON.stringify(donationData));
+
+  // حفظ البيانات في Firebase Firestore
+  db.collection("donations").doc("data").set(donationData)
+    .then(() => console.log("تم حفظ البيانات في Firebase"))
+    .catch((error) => console.error("خطأ في الحفظ:", error));
+}
+
 
     // دالة لتحميل البيانات من localStorage عند تحميل الصفحة
     function loadData() {
-      const storedData = localStorage.getItem('donationData');
-      if (storedData) {
-        const donationData = JSON.parse(storedData);
-        totalAmount = donationData.totalAmount || 0;
-        document.getElementById('totalRemainingAmount').innerText = totalTarget - totalAmount;
-        for (let i = 1; i <= 5; i++) {
-          if (donationData.teams[i]) {
-            document.getElementById('team' + i + 'Amount').innerText = donationData.teams[i].amount;
-            document.getElementById('team' + i + 'Target').innerText = donationData.teams[i].target;
-            donorsData[i] = donationData.teams[i].donors;
-            // تحديث شريط التقدم
-            let progressWidth = (donationData.teams[i].amount / 50000) * 100;
-            document.getElementById('team' + i + 'Progress').style.width = progressWidth + "%";
-            // تحديث عرض قائمة المتبرعين
-            const donorsListElem = document.getElementById("team" + i + "Donors");
-            donorsListElem.innerHTML = "";
-            for (let donorName in donorsData[i]) {
-              const p = document.createElement('p');
-              p.id = "donor-" + i + "-" + donorName;
-              p.textContent = donorName + " تبرع بـ " + donorsData[i][donorName] + " جنيه";
-              donorsListElem.appendChild(p);
-            }
-          }
-        }
+  // تحميل البيانات من localStorage أولًا
+  const storedData = localStorage.getItem('donationData');
+  
+  if (storedData) {
+    const donationData = JSON.parse(storedData);
+    updateUI(donationData);
+  }
+
+  // تحميل البيانات من Firebase
+  db.collection("donations").doc("data").get().then((doc) => {
+    if (doc.exists) {
+      const donationData = doc.data();
+      updateUI(donationData);
+    }
+  }).catch((error) => console.error("خطأ في تحميل البيانات من Firebase:", error));
+}
+
+// تحديث الواجهة بعد تحميل البيانات
+function updateUI(donationData) {
+  totalAmount = donationData.totalAmount || 0;
+  document.getElementById('totalRemainingAmount').innerText = totalTarget - totalAmount;
+
+  for (let i = 1; i <= 5; i++) {
+    if (donationData.teams[i]) {
+      document.getElementById('team' + i + 'Amount').innerText = donationData.teams[i].amount;
+      document.getElementById('team' + i + 'Target').innerText = donationData.teams[i].target;
+      donorsData[i] = donationData.teams[i].donors;
+
+      // تحديث شريط التقدم
+      let progressWidth = (donationData.teams[i].amount / 50000) * 100;
+      document.getElementById('team' + i + 'Progress').style.width = progressWidth + "%";
+
+      // تحديث قائمة المتبرعين
+      const donorsListElem = document.getElementById("team" + i + "Donors");
+      donorsListElem.innerHTML = "";
+      for (let donorName in donorsData[i]) {
+        const p = document.createElement('p');
+        p.id = "donor-" + i + "-" + donorName;
+        p.textContent = donorName + " تبرع بـ " + donorsData[i][donorName] + " جنيه";
+        donorsListElem.appendChild(p);
       }
     }
+  }
+}
 
-    // عند تحميل الصفحة يتم استدعاء loadData
-    window.onload = loadData;
+// تحميل البيانات عند فتح الموقع
+window.onload = loadData;
 
     function addDonation(teamNumber) {
       const donationInput = document.getElementById('team' + teamNumber + 'Donation');
@@ -292,4 +319,3 @@ const db = firebase.firestore();
   </script>
 </body>
 </html>
-
